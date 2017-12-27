@@ -60,7 +60,7 @@ public class DatabaseUtil {
 				int id = rs.getInt("UserID");
 				System.out.print("USERID::::::::::::::::::::::::::::::::::::::::::::::: " + id);
 			}
-			// STEP 6: Clean-up environment
+
 			rs.close();
 			stmt.close();
 			conn.close();
