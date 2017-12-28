@@ -1,6 +1,6 @@
 package com.nan.tianyu.dbutil;
 
-import com.nan.tianyu.model.User;
+import com.nan.tianyu.model.UserBean;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -105,8 +105,8 @@ public class DatabaseUtil {
 		System.out.println("Goodbye!");
 	}
 
-	public static ArrayList<User> getUserList(){
-		ArrayList<User> userList = new ArrayList<User>();
+	public static ArrayList<UserBean> getUserList(){
+		ArrayList<UserBean> userList = new ArrayList<UserBean>();
 
 		Connection conn = DatabaseUtil.getConnection();
 		Statement stmt = null;
@@ -117,7 +117,7 @@ public class DatabaseUtil {
 			String sql;
 			sql = "SELECT * FROM User";
 			ResultSet rs = null;
-			User user = null;
+			UserBean user = null;
 			rs = stmt.executeQuery(sql);
 
 			int userID = -1;
@@ -129,7 +129,7 @@ public class DatabaseUtil {
 			char status;
 			Date createDate;
 			while (rs.next()) {
-				user = new User();
+				user = new UserBean();
 
 				// Retrieve by column name
 				userID = rs.getInt("UserID");
@@ -141,7 +141,7 @@ public class DatabaseUtil {
 				createDate = rs.getDate("CreateDate");
 				user.setUserID(userID);
 				user.setUserName(userName);
-				user.setPassword(password);
+				user.setPassowrd(password);
 				user.setEmail(email);
 				user.setFirstName(firstName);
 				user.setLastName(lastName);
@@ -176,7 +176,7 @@ public class DatabaseUtil {
 		return userList;
 	}
 
-	public static void insertUser(User user){
+	public static void insertUser(UserBean user){
 		Connection conn = DatabaseUtil.getConnection();
 		Statement stmt = null;
 
@@ -195,8 +195,9 @@ public class DatabaseUtil {
 			}
 
 			int new_id = id + 1;
+			java.sql.Date sql_date = new java.sql.Date(user.getCreateDate().getTime());
 			String insert_sql;
-			insert_sql = "INSERT INTO User (UserID, UserName, Password, Email, Firstname, LastName, Status, CreateDate) Values (" +  new_id + ",'" + user.getUserName() + "',  '" +user.getPassword()+ "', '"+user.getEmail()+"', '" + user.getFirstName() + "', '" + user.getLastName()+ "','" + user.getStatus() + "', null)";
+			insert_sql = "INSERT INTO User (UserID, UserName, Password, Email, Firstname, LastName, Status, CreateDate) Values (" +  new_id + ",'" + user.getUserName() + "',  '" +user.getPassowrd()+ "', '"+user.getEmail()+"', '" + user.getFirstName() + "', '" + user.getLastName()+ "','" + user.getStatus() + "','"  + sql_date + "')";
 			stmt.executeUpdate(insert_sql);
 		} catch (SQLException e) {
 			e.printStackTrace();

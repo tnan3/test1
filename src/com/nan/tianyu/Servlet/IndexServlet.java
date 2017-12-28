@@ -1,81 +1,157 @@
 package com.nan.tianyu.Servlet;
 
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import javax.servlet.http.HttpSession;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
+import java.util.Date;
 
 import com.nan.tianyu.dbutil.*;
-import com.nan.tianyu.model.User;
-
+import com.nan.tianyu.model.Group;
+import com.nan.tianyu.model.UserBean;
 
 /**
- * Created by tianyunan on 12/27/17.
+ * Servlet implementation class IndexServlet
  */
 @WebServlet("/IndexServlet")
 public class IndexServlet extends HttpServlet {
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String username = request.getParameter("username");
-        String email = request.getParameter("email");
-        String password1 = request.getParameter("password1");
-        String password2 = request.getParameter("password2");
-        String firstname = request.getParameter("firstname");
-        String lastname = request.getParameter("lastname");
+    private static final long serialVersionUID = 1L;
 
-        User user = new User();
-        user.setUserName(username);
-        user.setEmail(email);
-        user.setPassword(password1);
-        user.setFirstName(firstname);
-        user.setLastName(lastname);
-        user.setUserID(0);
-        user.setStatus(1);
-        user.setCreateDate(null);
-
-        DatabaseUtil.insertUser(user);
-
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
-        out.println("<html><body>");
-        out.println("<h1>" +email+ "</h1>");
-        out.println("<h2>" +password1+ "</h2>");
-        out.println("<h3>" + password2 + "</h3>");
-        out.println("</body></html>");
-        out.close();
-            //request.getRequestDispatcher("/login.jsp").forward(request, response);
-
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public IndexServlet() {
+        super();
+        // TODO Auto-generated constructor stub
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        StringBuffer sbf = new StringBuffer();
+        String check = request.getParameter("user_name");
+        System.out.println(check);
 
 
-        response.setContentType("text/html");
+        try {
+            Connection conn = DatabaseUtil.getConnection();
+            Statement stmt = conn.createStatement();
 
-        PrintWriter out = response.getWriter();
-        User user = null;
-        out.println("<html><body>");
+            String sql = "SELECT * FROM User";
+            ResultSet rs = stmt.executeQuery(sql);
 
-        out.println("<h1>Hello, World!</h1>");
-        Iterator<User> itr = DatabaseUtil.getUserList().iterator();
-        while (itr.hasNext()){
-            user = itr.next();
-            out.println(user.getEmail());
+            // STEP 5: Extract data from result set
+            int count =0;
+            if (check.equals("Officer")){
+                count = 0;
+            }
+            if (check.equals("Supervisor")){
+                count = 1;
+            }
+            if (check.equals("Manager")){
+                count = 2;
+            }
+            int i = 0;
+            while (rs.next()) {
+                // Retrieve by column name
+                int id = rs.getInt("UserID");
+                String username = rs.getString("Username");
+                if(i == count){
+                    System.out.print("USERID::::: " + id + "\t Username=" + username);
+                    sbf.append("<h3>UserID=" + id + "; Username=" + username + "</h3>");
+                }
+                i++;
+
+                //sbf.append("<h3>UserID=" + id + "; Username=" + username + "</h3>");
+            }
+
+            rs.close();
+            stmt.close();
+            conn.close();
+
+            response.getWriter().append(sbf).append(request.getContextPath());
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        out.println("</body></html>");
+    }
 
-        out.close();
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+     *      response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+
+        UserBean usb = new UserBean();
+        String userName = request.getParameter("email");
+        String email = request.getParameter("email");
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String password1 = request.getParameter("password1");
+        String password2 = request.getParameter("password2");
+        String action = request.getParameter("Register");
+        usb.setUserName(userName);
+        usb.setEmail(email);
+        usb.setFirstName(firstName);
+        usb.setLastName(lastName);
+        //usb.setPassowrd(password1);
+        usb.setStatus(1);
+        //usb.setCreateDate(null);
 
 
+
+        System.out.println(">>>>>>>>>>>>>>>>>Action>>>>>>"+action);
+
+        boolean error = false;
+
+        if (action != null && action.equals("Register")) {
+            if (email.indexOf("@") == -1 || email.indexOf(".") == -1 || email.length() < 10) {
+                error = true;
+                usb.setMessage("Email is required!!");
+
+            }
+
+            if(!password1.equals(password2)){
+                error = true;
+                usb.setMessage("Password should be same!!");
+
+            }
+
+            if (error){
+
+                request.setAttribute("user", usb);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            }
+            else{
+                request.setAttribute("user", usb);
+                usb.setPassowrd(password1);
+                Date curr_date = new Date();
+                usb.setCreateDate(curr_date);
+                DatabaseUtil.insertUser(usb);
+                request.getRequestDispatcher("index1.jsp").forward(request, response);
+            }
+
+        }
+
+        //session.setAttribute("user", usb);
+        // Create User
 
     }
+
 }

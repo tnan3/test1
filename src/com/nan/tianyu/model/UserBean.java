@@ -7,10 +7,10 @@ public class UserBean implements java.io.Serializable {
 	private String userName;
 	private String firstName="";
 	private String lastName="";
-	private String email;
-	private String passowrd;
+	private String email="";
+	private String passowrd="";
 	private String message="";
-	private int status;
+	private int status=0;
 	private Date createDate;
 
 	public int getUserID() {
