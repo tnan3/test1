@@ -12,7 +12,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
+
 import com.nan.tianyu.dbutil.*;
+import com.nan.tianyu.model.User;
 
 
 /**
@@ -21,64 +24,53 @@ import com.nan.tianyu.dbutil.*;
 @WebServlet("/IndexServlet")
 public class IndexServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+        String password1 = request.getParameter("password1");
+        String password2 = request.getParameter("password2");
+        String firstname = request.getParameter("firstname");
+        String lastname = request.getParameter("lastname");
+
+        User user = new User();
+        user.setUserName(username);
+        user.setEmail(email);
+        user.setPassword(password1);
+        user.setFirstName(firstname);
+        user.setLastName(lastname);
+        user.setUserID(0);
+        user.setStatus(1);
+        user.setCreateDate(null);
+
+        DatabaseUtil.insertUser(user);
+
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        out.println("<html><body>");
+        out.println("<h1>" +email+ "</h1>");
+        out.println("<h2>" +password1+ "</h2>");
+        out.println("<h3>" + password2 + "</h3>");
+        out.println("</body></html>");
+        out.close();
+            //request.getRequestDispatcher("/login.jsp").forward(request, response);
 
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        StringBuffer sbf = new StringBuffer ();
-
-        Connection conn = DatabaseUtil.getConnection();
-        Statement stmt = null;
-
-        try {
-            stmt = conn.createStatement();
-
-            String sql;
-            sql = "SELECT * FROM User";
-            ResultSet rs = null;
-
-            rs = stmt.executeQuery(sql);
-
-            while (rs.next()) {
-                // Retrieve by column name
-            int id = rs.getInt("UserID");
-            String username = rs.getString("Username");
-            sbf.append("<h3>UserId="+id+"; Username="+username+"</h3><br>");
-
-            System.out.print("USERID::::::::::::::::::::::::::::::::::::::::::::::: " + id);
-            }
-            // STEP 6: Clean-up environment
-            rs.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException se) {
-            // Handle errors for JDBC
-            se.printStackTrace();
-
-        } finally {
-            // finally block used to close resources
-            try {
-                if (stmt != null)
-                    stmt.close();
-            } catch (SQLException se2) {
-            } // nothing we can do
-            try {
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException se) {
-                se.printStackTrace();
-            } // end finally try
-        } // end try
 
 
         response.setContentType("text/html");
 
         PrintWriter out = response.getWriter();
-
+        User user = null;
         out.println("<html><body>");
 
         out.println("<h1>Hello, World!</h1>");
-        out.println(sbf);
+        Iterator<User> itr = DatabaseUtil.getUserList().iterator();
+        while (itr.hasNext()){
+            user = itr.next();
+            out.println(user.getEmail());
+        }
+
         out.println("</body></html>");
 
         out.close();
