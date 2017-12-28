@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="tomcat7">
+    <serverData>
+      <paths name="tomcat7">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/survey" local="$PROJECT_DIR$/out/artifacts/JEEtest_war_exploded" web="/survey" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+  </component>
+</project>
