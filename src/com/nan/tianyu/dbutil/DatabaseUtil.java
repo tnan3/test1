@@ -199,6 +199,11 @@ public class DatabaseUtil {
 			String insert_sql;
 			insert_sql = "INSERT INTO User (UserID, UserName, Password, Email, Firstname, LastName, Status, CreateDate) Values (" +  new_id + ",'" + user.getUserName() + "',  '" +user.getPassowrd()+ "', '"+user.getEmail()+"', '" + user.getFirstName() + "', '" + user.getLastName()+ "','" + user.getStatus() + "','"  + sql_date + "')";
 			stmt.executeUpdate(insert_sql);
+
+            rs.close();
+            stmt.close();
+            conn.close();
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
